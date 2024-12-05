@@ -1,0 +1,92 @@
+body {
+  font-family: "Noto Sans KR", sans-serif;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  background-image: url(../img/21907843_6540223.jpg);
+  background-size: cover;
+}
+
+.weather-description {
+  display: flex;
+  align-items: center;
+}
+.weather-description img {
+  width: 30px;
+  margin-left: 10px;
+}
+
+#weather-info {
+  margin-top: 20px;
+}
+
+.tv {
+  z-index: -1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 55%;
+}
+
+h2 {
+  font-weight: 100;
+  font-size: 2vw;
+  font-family: "Black Han Sans", sans-serif;
+}
+
+ul {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.weather_caster {
+  margin-right: 11vw;
+  display: block;
+  width: 8%;
+}
+
+.bubble {
+  top: 42%;
+  width: 10%;
+  right: 41%;
+  position: absolute;
+}
+
+.weather_wrap {
+  position: relative;
+  color: #fff;
+  margin-right: 6.5vw;
+  margin-top: 7vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.weather-btn {
+  margin-top: 2vw;
+  position: relative;
+  top: -5%;
+  border: 3px solid #fff;
+  font-size: 0.6vw;
+  box-sizing: border-box;
+  width: 3vw;
+  height: 3vw;
+  border-radius: 50%;
+  background-color: #4caf50; /* 기본 배경색 */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.weather-btn:hover {
+  background-color: #45a049; /* 마우스를 올렸을 때 색상 변경 */
+  transform: scale(1.05); /* 크기 커짐 효과 */
+}
+
+.weather-btn:active {
+  background-color: #388e3c; /* 클릭 시 색상 변경 */
+}

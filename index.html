@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <script src="js/날씨.js"></script>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      .weather-description {
+        display: flex;
+        align-items: center;
+      }
+      .weather-description img {
+        width: 30px;
+        margin-left: 10px;
+      }
+      .container {
+        margin-top: 20px;
+      }
+      #weather-info {
+        margin-top: 20px;
+      }
+      button {
+        margin-top: 10px;
+        padding: 5px 10px;
+        font-size: 16px;
+      }
+    </style>
+    <title>도시별 날씨 조회</title>
+  </head>
+  <body>
+    <img class="tv" src="img/티비.png" />
+
+    <!-- 도시 선택 -->
+    <div class="weather_wrap">
+      <h2>새로움 날씨 일기예보</h2>
+      <img class="weather_caster" src="img/weater_caster.png" />
+      <img class="bubble" src="img/말풍선.png" />
+
+      <!-- 버튼으로 도시 선택 -->
+
+      <!-- 날씨 정보 -->
+      <ul>
+        <li>
+          <div id="weather-info" style="display: none">
+            <div><span>위치 : </span><span id="place">-</span></div>
+            <div class="weather-description">
+              <span>날씨 : </span><span id="des">-</span>
+              <img id="imgWrap" src="" alt="Weather Icon" />
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="container" style="display: none">
+            <div><span>기온 : </span><span id="temp">-</span></div>
+            <div><span>풍속 : </span><span id="wind">-</span></div>
+          </div>
+        </li>
+      </ul>
+      <div>
+        <button class="weather-btn" data-city="Seoul">서울</button>
+        <button class="weather-btn" data-city="Busan">부산</button>
+        <button class="weather-btn" data-city="Daegu">대구</button>
+        <button class="weather-btn" data-city="Incheon">인천</button>
+        <button class="weather-btn" data-city="Gwangju">광주</button>
+        <button class="weather-btn" data-city="Location">현재</button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const cityMapping = {
+          Seoul: "서울",
+          Busan: "부산",
+          Daegu: "대구",
+          Incheon: "인천",
+          Gwangju: "광주",
+          Location: "현재위치",
+        };
+
+        const iconMapping = {
+          "01d": "img/맑음.png",
+          "02d": "img/살짝구름.png",
+          "03d": "img/구름.png",
+          "04d": "img/구름많음.png",
+          "09d": "img/비.png",
+          "10d": "img/비.png",
+          "11d": "img/번개.png",
+          "13d": "img/눈.png",
+          "50d": "img/안개.png",
+          "01n": "img/맑음.png",
+          "02n": "img/살짝구름.png",
+          "03n": "img/구름.png",
+          "04n": "img/구름많음.png",
+          "09n": "img/비.png",
+          "10n": "img/비.png",
+          "11n": "img/번개.png",
+          "13n": "img/눈.png",
+          "50n": "img/안개.png",
+        };
+
+        const apiKey = "4c3b36af7a449b6adbfe082063f6144c";
+
+        // 버튼 클릭 시 이벤트 처리
+        const buttons = document.querySelectorAll(".weather-btn");
+        buttons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const cityname = button.dataset.city;
+            const koreanCityName = cityMapping[cityname];
+
+            // 'weather_caster' 이미지 숨기기
+            const weatherCasterImage =
+              document.querySelector(".weather_caster");
+            const bubbleImage = document.querySelector(".bubble");
+            // 'weather_caster' 이미지 숨기기
+            if (weatherCasterImage) {
+              weatherCasterImage.style.display = "none"; // 이미지 숨기기
+            }
+
+            // 'bubble' 이미지 숨기기
+            if (bubbleImage) {
+              bubbleImage.style.display = "none"; // 이미지 숨기기
+            }
+
+            // 날씨 정보 숨기기
+            document.querySelector("#imgWrap").style.display = "none"; // 이미지 숨기기
+            document.querySelector("#weather-info").style.display = "none"; // 날씨 정보 숨기기
+            document.querySelector(".container").style.display = "none"; // 추가 정보 숨기기
+
+            if (cityname === "Location") {
+              getLocation();
+            } else {
+              fetchWeather(cityname, koreanCityName);
+            }
+          });
+        });
+
+        // 날씨 정보 가져오기
+        function fetchWeather(city, cityName) {
+          fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=kr`
+          )
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("날씨 정보를 불러오는 데 실패했습니다.");
+              }
+              return response.json();
+            })
+            .then((data) => updateWeatherUI(data, cityName))
+            .catch((error) => alert(error.message));
+        }
+
+        // 현재 위치 기반 날씨 가져오기
+        function getLocation() {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+
+              fetch(
+                `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=kr`
+              )
+                .then((response) => {
+                  if (!response.ok) {
+                    throw new Error(
+                      "위치 기반 날씨 정보를 가져올 수 없습니다."
+                    );
+                  }
+                  return response.json();
+                })
+                .then((data) => updateWeatherUI(data, "현재위치"))
+                .catch((error) => alert(error.message));
+            },
+            (error) => {
+              alert("위치를 가져오는 데 실패했습니다.");
+            }
+          );
+        }
+
+        // 날씨 UI 업데이트
+        function updateWeatherUI(data, cityName) {
+          document.querySelector("#place").textContent = cityName || "-";
+          document.querySelector("#des").textContent =
+            data.weather[0]?.description || "-";
+          document.querySelector("#temp").textContent = data.main?.temp
+            ? `${data.main.temp}°C`
+            : "-";
+          document.querySelector("#wind").textContent = data.wind?.speed
+            ? `${data.wind.speed} m/s`
+            : "-";
+
+          const icon = data.weather[0]?.icon;
+          const iconUrl = iconMapping[icon] || "img/기본.png"; // 기본 이미지 경로 수정
+          const imgWrap = document.querySelector("#imgWrap");
+
+          // 이미지 경로가 유효하면 이미지 보이기
+          if (iconUrl) {
+            imgWrap.setAttribute("src", iconUrl);
+            imgWrap.style.display = "inline"; // 이미지를 보이게 설정
+          } else {
+            imgWrap.style.display = "none"; // 이미지가 없다면 숨김
+          }
+
+          // 날씨 정보 보이기
+          document.querySelector("#weather-info").style.display = "block";
+          document.querySelector(".container").style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>
